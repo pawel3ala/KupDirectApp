@@ -34,6 +34,7 @@ export default function HomeScreen() {
       }}>
       <BarCodeScanner
         onBarCodeScanned={scanned ? undefined : handleBarCodeScanned}
+        barCodeTypes={[BarCodeScanner.Constants.BarCodeType.aztec]}
         style={StyleSheet.absoluteFillObject}
       />
 
