@@ -41,6 +41,7 @@ export default function HomeScreen() {
         onBarCodeScanned={scanned ? undefined : handleBarCodeScanned}
         barCodeTypes={[BarCodeScanner.Constants.BarCodeType.aztec]}
         autoFocus={true}
+        videoStabilizationMode={"auto"}
         style={StyleSheet.absoluteFillObject}
       />
       <View style={styles.overlay}>
