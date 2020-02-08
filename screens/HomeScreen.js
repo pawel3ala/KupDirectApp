@@ -4,6 +4,7 @@ import {
   View,
   StyleSheet,
   Button,
+  StatusBar
 } from 'react-native'
 import { BarCodeScanner } from 'expo-barcode-scanner';
 
@@ -37,6 +38,7 @@ export default function HomeScreen() {
         flexDirection: 'column',
         justifyContent: 'flex-end',
       }}>
+      <StatusBar hidden={true} />
       <BarCodeScanner
         onBarCodeScanned={scanned ? undefined : handleBarCodeScanned}
         barCodeTypes={[BarCodeScanner.Constants.BarCodeType.aztec]}
