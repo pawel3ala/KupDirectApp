@@ -41,7 +41,7 @@ function Oferta(props) {
   }, []);
 
   return (
-    <WebView scalesPageToFit='false' 
+    <WebView 
     source={{ uri: `http://kup.direct/appconnect/service.php?session=${props.route.params.sessionId}` }} 
     />
   );
@@ -62,7 +62,7 @@ function HomeScreen({ navigation }) {
 
   const handleBarCodeScanned = ({ type, data }) => {
     setScanned(true);
-    // alert(`Bar code with type ${type} and data ${data} has been scanned!`);
+    alert(`Dobra, udalo sie zeskanowac`);
 
     let formData = new FormData()
     formData.append("action", "datatransfer")
