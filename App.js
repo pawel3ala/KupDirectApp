@@ -3,7 +3,6 @@ import {
   Text,
   View,
   StyleSheet,
-  Button,
   StatusBar
 } from 'react-native'
 import { BarCodeScanner } from 'expo-barcode-scanner';
@@ -13,7 +12,6 @@ import { NavigationContainer } from '@react-navigation/native';
 import { createStackNavigator } from '@react-navigation/stack';
 import { ScreenOrientation } from 'expo';
 import base64 from 'react-native-base64'
-
 
 const Stack = createStackNavigator();
 
@@ -145,6 +143,15 @@ const styles = StyleSheet.create({
 })
 
 const getSessionId = (string) => {
+  /*
+  Server returns a string, not a json object!
+
+  Extracts session id from the folowing string:
+  '{"status":"ok","message":"Dane zosta\u0142y przes\u0142ane na serwer i poprawnie zinterpretowane.","url":"http:\/\/kup.direct\/appconnect\/service.php?session=cefd60ec5e49f83ab83d3fc2b615b863b0238886"}'
+
+  returns 'cefd60ec5e49f83ab83d3fc2b615b863b0238886'
+  */
+  
   const indexOfEqualSign = string.lastIndexOf('=') + 1
   const indexOfLastQuotes = string.lastIndexOf('"')
   return string.slice(indexOfEqualSign, indexOfLastQuotes)
