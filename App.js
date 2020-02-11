@@ -33,10 +33,9 @@ export default App;
 function Oferta(props) {
 
   useEffect(() => {
-    async function changeOrientation() {
+    (async () => {
       await ScreenOrientation.lockAsync(ScreenOrientation.OrientationLock.LANDSCAPE);
-    }
-    changeOrientation()
+    })();
   }, []);
 
   return (
