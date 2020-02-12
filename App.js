@@ -19,7 +19,7 @@ function App() {
   return (
     <NavigationContainer>
       <Stack.Navigator
-        screenOptions={{headerShown: false}}>
+        screenOptions={{ headerShown: false }}>
         <Stack.Screen name="Home" component={HomeScreen} />
         <Stack.Screen name="Oferta" component={Oferta} />
       </Stack.Navigator>
@@ -39,9 +39,12 @@ function Oferta(props) {
   }, []);
 
   return (
-    <WebView 
-    source={{ uri: `http://kup.direct/appconnect/service.php?session=${props.route.params.sessionId}` }} 
-    />
+    <>
+      <StatusBar hidden={true} />
+      <WebView
+        source={{ uri: `http://kup.direct/appconnect/service.php?session=${props.route.params.sessionId}` }}
+      />
+    </>
   );
 }
 
@@ -150,7 +153,7 @@ const getSessionId = (string) => {
 
   returns 'cefd60ec5e49f83ab83d3fc2b615b863b0238886'
   */
-  
+
   const indexOfEqualSign = string.lastIndexOf('=') + 1
   const indexOfLastQuotes = string.lastIndexOf('"')
   return string.slice(indexOfEqualSign, indexOfLastQuotes)
