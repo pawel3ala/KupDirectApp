@@ -3,7 +3,8 @@ import {
   Text,
   View,
   StyleSheet,
-  StatusBar
+  StatusBar,
+  Platform
 } from 'react-native'
 import { BarCodeScanner } from 'expo-barcode-scanner';
 import axios from 'axios'
@@ -70,7 +71,13 @@ function HomeScreen({ navigation }) {
     formData.append("terminal", "99999999YYYYYYYY")
     formData.append("barcode", base64.encode(data))
 
-    axios.post("http://kup.direct/appconnect/service.php", formData)
+    let config = {
+      headers: {
+        "HTTP_USER_AGENT": Platform.OS === 'ios' ? "KUPDIRECT_APP_IPHONE" : "KUPDIRECT_APP_ANDROID",
+      }
+    }
+
+    axios.post("http://kup.direct/appconnect/service.php", formData, config)
       .then((resp) => getSessionId(resp.request._response))
       .then((session) => navigation.navigate('Oferta', { sessionId: session }))
   };
