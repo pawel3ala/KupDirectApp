@@ -71,7 +71,9 @@ function HomeScreen({ navigation }) {
   const handleBarCodeScanned = ({ type, data }) => {
     setScanned(true);
     alert(`Dobra, udalo sie zeskanowac`);
-    Sentry.nativeCrash();
+
+    Sentry.captureMessage('Aztec code succesfullt scanned', 'info');
+
 
     let formData = new FormData()
     formData.append("action", "datatransfer")
