@@ -15,7 +15,7 @@ import base64 from 'react-native-base64'
 import * as Sentry from 'sentry-expo';
 
 Sentry.init({
-  dsn: 'https://f8a02133e800455c86bee49793874e17@sentry.io/2581571', 
+  dsn: 'https://f8a02133e800455c86bee49793874e17@sentry.io/2581571',
   enableInExpoDevelopment: true,
   debug: true
 });
@@ -49,7 +49,11 @@ function Oferta(props) {
     <>
       <StatusBar hidden={true} />
       <WebView
-        source={{ uri: `http://kup.direct/appconnect/service.php?session=${props.route.params.sessionId}` }}
+        onError={syntheticEvent => {
+          const { nativeEvent } = syntheticEvent;
+          Sentry.captureMessage('WebView error: ' + nativeEvent, 'error');
+        }}
+        source={{ uri: `http://kup.diect/appconnect/service.php?session=${props.route.params.sessionId}` }}
       />
     </>
   );
@@ -64,16 +68,21 @@ function HomeScreen({ navigation }) {
   useEffect(() => {
     (async () => {
       const { status } = await BarCodeScanner.requestPermissionsAsync();
-      setHasPermission(status === 'granted');
+
+      if (status === 'granted') {
+        setHasPermission(true);
+      }
+      else {
+        Sentry.captureMessage('Permision to use Camera has not been granted!', 'error');
+        setHasPermission(false);
+      }
     })();
   }, []);
 
   const handleBarCodeScanned = ({ type, data }) => {
     setScanned(true);
     alert(`Dobra, udalo sie zeskanowac`);
-
-    Sentry.captureMessage('Aztec code succesfullt scanned', 'info');
-
+    Sentry.captureMessage('Aztec code succesfully scanned', 'info');
 
     let formData = new FormData()
     formData.append("action", "datatransfer")
@@ -83,6 +92,9 @@ function HomeScreen({ navigation }) {
     axios.post("http://kup.direct/appconnect/service.php", formData)
       .then((resp) => getSessionId(resp.request._response))
       .then((session) => navigation.navigate('Oferta', { sessionId: session }))
+      .catch((error) => {
+        Sentry.captureMessage('Aztec code succesfully scanned but server responded with:' + error, 'fatal');
+      })
   };
 
   if (hasPermission === null) {
