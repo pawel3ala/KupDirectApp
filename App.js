@@ -12,6 +12,13 @@ import { NavigationContainer } from '@react-navigation/native';
 import { createStackNavigator } from '@react-navigation/stack';
 import { ScreenOrientation } from 'expo';
 import base64 from 'react-native-base64'
+import * as Sentry from 'sentry-expo';
+
+Sentry.init({
+  dsn: 'https://f8a02133e800455c86bee49793874e17@sentry.io/2581571', 
+  enableInExpoDevelopment: true,
+  debug: true
+});
 
 const Stack = createStackNavigator();
 
@@ -64,6 +71,7 @@ function HomeScreen({ navigation }) {
   const handleBarCodeScanned = ({ type, data }) => {
     setScanned(true);
     alert(`Dobra, udalo sie zeskanowac`);
+    Sentry.nativeCrash();
 
     let formData = new FormData()
     formData.append("action", "datatransfer")
