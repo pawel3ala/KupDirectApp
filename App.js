@@ -50,6 +50,9 @@ function Oferta(props) {
     <>
       <StatusBar hidden={true} />
       <WebView
+        // scalesPageToFit
+        // javaScriptEnabled
+        // style={{ flex: 1 }}
         onError={syntheticEvent => {
           const { nativeEvent } = syntheticEvent;
           Sentry.captureMessage('WebView error: ' + nativeEvent, 'error');
