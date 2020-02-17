@@ -54,7 +54,7 @@ function Oferta(props) {
           const { nativeEvent } = syntheticEvent;
           Sentry.captureMessage('WebView error: ' + nativeEvent, 'error');
         }}
-        source={{ uri: `http://kup.diect/appconnect/service.php?session=${props.route.params.sessionId}` }}
+        source={{ uri: `http://kup.direct/appconnect/service.php?session=${props.route.params.sessionId}` }}
       />
     </>
   );
