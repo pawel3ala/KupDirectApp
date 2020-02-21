@@ -35,7 +35,7 @@ function App() {
   );
 }
 
-export default App;
+
 
 
 function Oferta(props) {
@@ -190,3 +190,5 @@ const getSessionId = (string) => {
   const indexOfLastQuotes = string.lastIndexOf('"')
   return string.slice(indexOfEqualSign, indexOfLastQuotes)
 }
+
+export default App;
