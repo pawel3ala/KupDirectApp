@@ -23,7 +23,7 @@ export default function Offers(props) {
             <StatusBar hidden={true} />
             <WebView
                 // scalesPageToFit
-                // javaScriptEnabled
+                javaScriptEnabled
                 // style={{ flex: 1 }}
                 onError={syntheticEvent => {
                     const { nativeEvent } = syntheticEvent;
