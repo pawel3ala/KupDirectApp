@@ -15,8 +15,20 @@ export default function Offers(props) {
     useEffect(() => {
         (async () => {
             await ScreenOrientation.lockAsync(ScreenOrientation.OrientationLock.LANDSCAPE);
-        })();
-    }, []);
+    }
+    async function restoreScreen() {
+        await ScreenOrientation.lockAsync(ScreenOrientation.OrientationLock.PORTRAIT);
+    }
+
+    useFocusEffect(
+        React.useCallback(() => {
+            rotateScreen()
+            return () => {
+                restoreScreen()
+            }
+        }
+        )
+    )
 
     return (
         <>
