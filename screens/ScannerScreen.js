@@ -4,12 +4,20 @@ import {
     View,
     StyleSheet,
     StatusBar,
-    Platform
+    Platform,
+    Button
 } from 'react-native'
 import { BarCodeScanner } from 'expo-barcode-scanner';
 import axios from 'axios'
 import base64 from 'react-native-base64'
 import * as Sentry from 'sentry-expo';
+import { useFocusEffect } from '@react-navigation/native';
+import { ScreenOrientation } from 'expo';
+import { Dimensions } from 'react-native'
+import { WebView } from 'react-native-webview';
+
+
+const SCREEN_WIDTH = Dimensions.get('window').width
 
 Sentry.init({
     dsn: 'https://f8a02133e800455c86bee49793874e17@sentry.io/2581571',
@@ -20,6 +28,22 @@ Sentry.init({
 export default function ScannerScreen({ navigation }) {
     const [hasPermission, setHasPermission] = useState(null);
     const [scanned, setScanned] = useState(false);
+
+    async function rotateScreen() {
+        await ScreenOrientation.lockAsync(ScreenOrientation.OrientationLock.LANDSCAPE);
+    }
+    async function restoreScreen() {
+        await ScreenOrientation.lockAsync(ScreenOrientation.OrientationLock.PORTRAIT);
+    }
+
+    useFocusEffect(
+        React.useCallback(() => {
+            rotateScreen()
+            return () => {
+                restoreScreen()
+            }
+        })
+    )
 
     useEffect(() => {
         (async () => {
@@ -53,11 +77,13 @@ export default function ScannerScreen({ navigation }) {
 
         axios.post("http://kup.direct/appconnect/service.php", formData, config)
             .then((resp) => getSessionId(resp.request._response))
-            .then((session) => navigation.navigate('Oferta', { sessionId: session }))
+            .then((session) => navigation.navigate('OffersScreen', { sessionId: session }))
             .catch((error) => {
                 Sentry.captureMessage('Aztec code succesfully scanned but server responded with:' + error, 'fatal');
             })
     };
+
+
 
     if (hasPermission === null) {
         return <Text>Requesting for camera permission</Text>;
@@ -67,32 +93,45 @@ export default function ScannerScreen({ navigation }) {
     }
 
     return (
-        <View
-            style={{
-                flex: 1,
-                flexDirection: 'column',
-                justifyContent: 'flex-end',
-            }}>
-            <StatusBar hidden={true} />
-            <BarCodeScanner
-                onBarCodeScanned={scanned ? undefined : handleBarCodeScanned}
-                barCodeTypes={[BarCodeScanner.Constants.BarCodeType.aztec]}
-                autoFocus={true}
-                videoStabilizationMode={"auto"}
-                style={StyleSheet.absoluteFillObject}
+        <View style={{
+            flex: 1,
+            flexDirection: 'row'
+        }}>
+            <WebView
+                scalesPageToFit
+                style={{ flex: 1 }}
+                onError={syntheticEvent => {
+                    const { nativeEvent } = syntheticEvent;
+                    Sentry.captureMessage('WebView error: ' + nativeEvent, 'error');
+                }}
+                source={{ uri: 'http://kup.direct/appconnect/service.php?page_scan' }}
             />
-            <View style={styles.overlay}>
-                <View style={styles.unfocusedContainer}></View>
-                <View style={styles.middleContainer}>
-                    <View style={styles.unfocusedContainer}></View>
-                    <View
-                        style={styles.focusedContainer}>
+            <View style={{ width: SCREEN_WIDTH }}>
+                <View
+                    style={{
+                        flex: 1,
+                        flexDirection: 'column',
+                        // justifyContent: 'flex-end',
+                    }}>
+                    <StatusBar hidden={true} />
+                    <BarCodeScanner
+                        onBarCodeScanned={scanned ? undefined : handleBarCodeScanned}
+                        barCodeTypes={[BarCodeScanner.Constants.BarCodeType.aztec]}
+                        autoFocus={true}
+                        videoStabilizationMode={"auto"}
+                        style={StyleSheet.absoluteFillObject}
+                    />
+                    <View style={styles.overlay}>
+                        <View style={styles.unfocusedContainer} />
+                        <View style={styles.middleContainer}>
+                            <View style={styles.unfocusedContainer} />
+                            <View style={styles.focusedContainer} />
+                            <View style={styles.unfocusedContainer} />
+                        </View>
+                        <View style={styles.unfocusedContainer} />
                     </View>
-                    <View style={styles.unfocusedContainer}></View>
                 </View>
-                <View style={styles.unfocusedContainer}></View>
             </View>
-            {/* {scanned && <Button title={'Nacisnij zeby przeskanowac ponownie'} onPress={() => setScanned(false)} />} */}
         </View>
     );
 }
@@ -118,12 +157,7 @@ const styles = StyleSheet.create({
         flex: 1.5,
     },
     focusedContainer: {
-        flex: 6,
-    },
-    rescanIconContainer: {
-        flex: 1,
-        alignItems: 'center',
-        justifyContent: 'center',
+        width: 0.7 * SCREEN_WIDTH
     },
 })
 
@@ -141,5 +175,3 @@ const getSessionId = (string) => {
     const indexOfLastQuotes = string.lastIndexOf('"')
     return string.slice(indexOfEqualSign, indexOfLastQuotes)
 }
-
-
