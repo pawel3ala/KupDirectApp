@@ -4,12 +4,16 @@ import {
     View,
     StyleSheet,
     StatusBar,
-    Platform
+    Platform,
 } from 'react-native'
 import { BarCodeScanner } from 'expo-barcode-scanner';
 import axios from 'axios'
 import base64 from 'react-native-base64'
 import * as Sentry from 'sentry-expo';
+import { useFocusEffect } from '@react-navigation/native';
+import { ScreenOrientation } from 'expo';
+import { Dimensions } from 'react-native';
+import { WebView } from 'react-native-webview';
 
 Sentry.init({
     dsn: 'https://f8a02133e800455c86bee49793874e17@sentry.io/2581571',
@@ -20,6 +24,20 @@ Sentry.init({
 export default function ScannerScreen({ navigation }) {
     const [hasPermission, setHasPermission] = useState(null);
     const [scanned, setScanned] = useState(false);
+
+    async function rotateScreen() {
+        await ScreenOrientation.lockAsync(ScreenOrientation.OrientationLock.LANDSCAPE);
+    }
+    async function restoreScreen() {
+        await ScreenOrientation.lockAsync(ScreenOrientation.OrientationLock.PORTRAIT);
+    }
+
+    useFocusEffect(
+        React.useCallback(() => {
+            console.log("Scanner in focus")
+            rotateScreen()
+        })
+    )
 
     useEffect(() => {
         (async () => {
@@ -37,7 +55,6 @@ export default function ScannerScreen({ navigation }) {
 
     const handleBarCodeScanned = ({ type, data }) => {
         setScanned(true);
-        alert(`Dobra, udalo sie zeskanowac`);
         Sentry.captureMessage('Aztec code succesfully scanned', 'info');
 
         let formData = new FormData()
@@ -53,7 +70,10 @@ export default function ScannerScreen({ navigation }) {
 
         axios.post("http://kup.direct/appconnect/service.php", formData, config)
             .then((resp) => getSessionId(resp.request._response))
-            .then((session) => navigation.navigate('Oferta', { sessionId: session }))
+            .then((session) => {
+                navigation.navigate('OffersScreen', { sessionId: session })
+                setScanned(false)
+            })
             .catch((error) => {
                 Sentry.captureMessage('Aztec code succesfully scanned but server responded with:' + error, 'fatal');
             })
@@ -67,32 +87,44 @@ export default function ScannerScreen({ navigation }) {
     }
 
     return (
-        <View
-            style={{
-                flex: 1,
-                flexDirection: 'column',
-                justifyContent: 'flex-end',
-            }}>
-            <StatusBar hidden={true} />
-            <BarCodeScanner
-                onBarCodeScanned={scanned ? undefined : handleBarCodeScanned}
-                barCodeTypes={[BarCodeScanner.Constants.BarCodeType.aztec]}
-                autoFocus={true}
-                videoStabilizationMode={"auto"}
-                style={StyleSheet.absoluteFillObject}
+        <View style={{
+            flex: 1,
+            flexDirection: 'row'
+        }}>
+            <WebView
+                scalesPageToFit
+                style={{ flex: 1 }}
+                onError={syntheticEvent => {
+                    const { nativeEvent } = syntheticEvent;
+                    Sentry.captureMessage('WebView error: ' + nativeEvent, 'error');
+                }}
+                source={{ uri: 'http://kup.direct/appconnect/service.php?page_scan' }}
             />
-            <View style={styles.overlay}>
-                <View style={styles.unfocusedContainer}></View>
-                <View style={styles.middleContainer}>
-                    <View style={styles.unfocusedContainer}></View>
-                    <View
-                        style={styles.focusedContainer}>
+            <View style={{ width: Dimensions.get('window').height }}>
+                <View
+                    style={{
+                        flex: 1,
+                        flexDirection: 'column',
+                    }}>
+                    <StatusBar hidden={true} />
+                    <BarCodeScanner
+                        onBarCodeScanned={scanned ? undefined : handleBarCodeScanned}
+                        barCodeTypes={[BarCodeScanner.Constants.BarCodeType.aztec]}
+                        autoFocus={true}
+                        videoStabilizationMode={"auto"}
+                        style={StyleSheet.absoluteFillObject}
+                    />
+                    <View style={styles.overlay}>
+                        <View style={styles.unfocusedContainer} />
+                        <View style={styles.middleContainer}>
+                            <View style={styles.unfocusedContainer} />
+                            <View style={styles.focusedContainer} />
+                            <View style={styles.unfocusedContainer} />
+                        </View>
+                        <View style={styles.unfocusedContainer} />
                     </View>
-                    <View style={styles.unfocusedContainer}></View>
                 </View>
-                <View style={styles.unfocusedContainer}></View>
             </View>
-            {/* {scanned && <Button title={'Nacisnij zeby przeskanowac ponownie'} onPress={() => setScanned(false)} />} */}
         </View>
     );
 }
@@ -115,15 +147,11 @@ const styles = StyleSheet.create({
     },
     middleContainer: {
         flexDirection: 'row',
-        flex: 1.5,
+        flex: 2,
     },
     focusedContainer: {
-        flex: 6,
-    },
-    rescanIconContainer: {
-        flex: 1,
-        alignItems: 'center',
-        justifyContent: 'center',
+        width: '60%',
+        height: '70%'
     },
 })
 
@@ -141,5 +169,3 @@ const getSessionId = (string) => {
     const indexOfLastQuotes = string.lastIndexOf('"')
     return string.slice(indexOfEqualSign, indexOfLastQuotes)
 }
-
-

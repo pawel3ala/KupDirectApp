@@ -10,9 +10,11 @@ export default function App() {
   return (
     <NavigationContainer>
       <Stack.Navigator
-        screenOptions={{ headerShown: false }}>
-        <Stack.Screen name="ScannerScreen" component={ScannerScreen} />
-        <Stack.Screen name="OffersScreen" component={OffersScreen} />
+        screenOptions={{ headerShown: false }}
+        initialRouteName="ScannerScreen"
+      >
+          <Stack.Screen name="OffersScreen" component={OffersScreen} />
+          <Stack.Screen name="ScannerScreen" component={ScannerScreen} />
       </Stack.Navigator>
     </NavigationContainer>
   );

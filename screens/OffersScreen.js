@@ -1,8 +1,9 @@
-import React, { useEffect } from 'react';
+import React from 'react';
 import { StatusBar } from 'react-native'
 import { WebView } from 'react-native-webview';
 import { ScreenOrientation } from 'expo';
 import * as Sentry from 'sentry-expo';
+import { useFocusEffect } from '@react-navigation/native';
 
 Sentry.init({
     dsn: 'https://f8a02133e800455c86bee49793874e17@sentry.io/2581571',
@@ -12,9 +13,10 @@ Sentry.init({
 
 export default function Offers(props) {
 
-    useEffect(() => {
-        (async () => {
-            await ScreenOrientation.lockAsync(ScreenOrientation.OrientationLock.LANDSCAPE);
+    const { sessionId } = props.route.params
+
+    async function rotateScreen() {
+        await ScreenOrientation.lockAsync(ScreenOrientation.OrientationLock.LANDSCAPE);
     }
     async function restoreScreen() {
         await ScreenOrientation.lockAsync(ScreenOrientation.OrientationLock.PORTRAIT);
@@ -23,11 +25,10 @@ export default function Offers(props) {
     useFocusEffect(
         React.useCallback(() => {
             rotateScreen()
-            return () => {
-                restoreScreen()
-            }
-        }
-        )
+            // return () => {
+            //     restoreScreen()
+            // }
+        })
     )
 
     return (
@@ -36,12 +37,20 @@ export default function Offers(props) {
             <WebView
                 // scalesPageToFit
                 javaScriptEnabled
-                // style={{ flex: 1 }}
+                style={{ flex: 1 }}
                 onError={syntheticEvent => {
                     const { nativeEvent } = syntheticEvent;
                     Sentry.captureMessage('WebView error: ' + nativeEvent, 'error');
                 }}
-                source={{ uri: `http://kup.direct/appconnect/service.php?session=${props.route.params.sessionId}` }}
+                source={{ uri: `http://kup.direct/appconnect/service.php?session=${sessionId}` }}
+                onMessage={event => {
+                    const { data } = event.nativeEvent;
+                    if (data === 'odrzuc') {
+                        props.navigation.navigate('ScannerScreen')
+                    } else if (data === 'wyslij') {
+                        console.log('Wyslij has been pressed in Webview')
+                    }
+                }}
             />
         </>
     );
