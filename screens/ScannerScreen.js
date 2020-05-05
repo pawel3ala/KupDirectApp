@@ -5,7 +5,6 @@ import {
     StyleSheet,
     StatusBar,
     Platform,
-    Button
 } from 'react-native'
 import { BarCodeScanner } from 'expo-barcode-scanner';
 import axios from 'axios'
@@ -13,11 +12,8 @@ import base64 from 'react-native-base64'
 import * as Sentry from 'sentry-expo';
 import { useFocusEffect } from '@react-navigation/native';
 import { ScreenOrientation } from 'expo';
-import { Dimensions } from 'react-native'
+import { Dimensions } from 'react-native';
 import { WebView } from 'react-native-webview';
-
-
-const SCREEN_WIDTH = Dimensions.get('window').width
 
 Sentry.init({
     dsn: 'https://f8a02133e800455c86bee49793874e17@sentry.io/2581571',
@@ -38,10 +34,8 @@ export default function ScannerScreen({ navigation }) {
 
     useFocusEffect(
         React.useCallback(() => {
+            console.log("Scanner in focus")
             rotateScreen()
-            return () => {
-                restoreScreen()
-            }
         })
     )
 
@@ -61,7 +55,6 @@ export default function ScannerScreen({ navigation }) {
 
     const handleBarCodeScanned = ({ type, data }) => {
         setScanned(true);
-        alert(`Dobra, udalo sie zeskanowac`);
         Sentry.captureMessage('Aztec code succesfully scanned', 'info');
 
         let formData = new FormData()
@@ -77,13 +70,14 @@ export default function ScannerScreen({ navigation }) {
 
         axios.post("http://kup.direct/appconnect/service.php", formData, config)
             .then((resp) => getSessionId(resp.request._response))
-            .then((session) => navigation.navigate('OffersScreen', { sessionId: session }))
+            .then((session) => {
+                navigation.navigate('OffersScreen', { sessionId: session })
+                setScanned(false)
+            })
             .catch((error) => {
                 Sentry.captureMessage('Aztec code succesfully scanned but server responded with:' + error, 'fatal');
             })
     };
-
-
 
     if (hasPermission === null) {
         return <Text>Requesting for camera permission</Text>;
@@ -106,12 +100,11 @@ export default function ScannerScreen({ navigation }) {
                 }}
                 source={{ uri: 'http://kup.direct/appconnect/service.php?page_scan' }}
             />
-            <View style={{ width: SCREEN_WIDTH }}>
+            <View style={{ width: Dimensions.get('window').height }}>
                 <View
                     style={{
                         flex: 1,
                         flexDirection: 'column',
-                        // justifyContent: 'flex-end',
                     }}>
                     <StatusBar hidden={true} />
                     <BarCodeScanner
@@ -154,10 +147,11 @@ const styles = StyleSheet.create({
     },
     middleContainer: {
         flexDirection: 'row',
-        flex: 1.5,
+        flex: 2,
     },
     focusedContainer: {
-        width: 0.7 * SCREEN_WIDTH
+        width: '60%',
+        height: '70%'
     },
 })
 
