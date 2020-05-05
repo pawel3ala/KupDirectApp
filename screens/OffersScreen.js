@@ -24,7 +24,7 @@ export default function Offers(props) {
 
     useFocusEffect(
         React.useCallback(() => {
-            rotateScreen()
+            // rotateScreen()
             // return () => {
             //     restoreScreen()
             // }

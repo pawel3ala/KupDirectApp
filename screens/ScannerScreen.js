@@ -14,6 +14,7 @@ import { useFocusEffect } from '@react-navigation/native';
 import { ScreenOrientation } from 'expo';
 import { Dimensions } from 'react-native';
 import { WebView } from 'react-native-webview';
+import { Camera } from 'expo-camera';
 
 Sentry.init({
     dsn: 'https://f8a02133e800455c86bee49793874e17@sentry.io/2581571',
@@ -35,13 +36,13 @@ export default function ScannerScreen({ navigation }) {
     useFocusEffect(
         React.useCallback(() => {
             console.log("Scanner in focus")
-            rotateScreen()
+            // rotateScreen()
         })
     )
 
     useEffect(() => {
         (async () => {
-            const { status } = await BarCodeScanner.requestPermissionsAsync();
+            const { status } = await Camera.requestPermissionsAsync();
 
             if (status === 'granted') {
                 setHasPermission(true);
@@ -54,6 +55,7 @@ export default function ScannerScreen({ navigation }) {
     }, []);
 
     const handleBarCodeScanned = ({ type, data }) => {
+        console.log("fff")
         setScanned(true);
         Sentry.captureMessage('Aztec code succesfully scanned', 'info');
 
@@ -107,11 +109,11 @@ export default function ScannerScreen({ navigation }) {
                         flexDirection: 'column',
                     }}>
                     <StatusBar hidden={true} />
-                    <BarCodeScanner
+                    <Camera
                         onBarCodeScanned={scanned ? undefined : handleBarCodeScanned}
-                        barCodeTypes={[BarCodeScanner.Constants.BarCodeType.aztec]}
-                        autoFocus={true}
-                        videoStabilizationMode={"auto"}
+                        barCodeScannerSettings={{barCodeTypes: [BarCodeScanner.Constants.BarCodeType.aztec]}}
+                        autoFocus={Camera.Constants.on}
+                        videoStabilizationMode={Camera.Constants.VideoStabilization.auto}
                         style={StyleSheet.absoluteFillObject}
                     />
                     <View style={styles.overlay}>
