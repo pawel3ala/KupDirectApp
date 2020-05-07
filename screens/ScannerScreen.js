@@ -5,6 +5,7 @@ import {
     StyleSheet,
     StatusBar,
     Platform,
+    Button
 } from 'react-native'
 import { BarCodeScanner } from 'expo-barcode-scanner';
 import axios from 'axios'
@@ -14,6 +15,7 @@ import { useFocusEffect } from '@react-navigation/native';
 import { ScreenOrientation } from 'expo';
 import { Dimensions } from 'react-native';
 import { WebView } from 'react-native-webview';
+import { Camera } from 'expo-camera';
 
 Sentry.init({
     dsn: 'https://f8a02133e800455c86bee49793874e17@sentry.io/2581571',
@@ -35,13 +37,13 @@ export default function ScannerScreen({ navigation }) {
     useFocusEffect(
         React.useCallback(() => {
             console.log("Scanner in focus")
-            rotateScreen()
+            // rotateScreen()
         })
     )
 
     useEffect(() => {
         (async () => {
-            const { status } = await BarCodeScanner.requestPermissionsAsync();
+            const { status } = await Camera.requestPermissionsAsync();
 
             if (status === 'granted') {
                 setHasPermission(true);
@@ -70,10 +72,7 @@ export default function ScannerScreen({ navigation }) {
 
         axios.post("http://kup.direct/appconnect/service.php", formData, config)
             .then((resp) => getSessionId(resp.request._response))
-            .then((session) => {
-                navigation.navigate('OffersScreen', { sessionId: session })
-                setScanned(false)
-            })
+            .then((session) => navigation.navigate('OffersScreen', { sessionId: session }))
             .catch((error) => {
                 Sentry.captureMessage('Aztec code succesfully scanned but server responded with:' + error, 'fatal');
             })
@@ -107,11 +106,11 @@ export default function ScannerScreen({ navigation }) {
                         flexDirection: 'column',
                     }}>
                     <StatusBar hidden={true} />
-                    <BarCodeScanner
+                    <Camera
                         onBarCodeScanned={scanned ? undefined : handleBarCodeScanned}
-                        barCodeTypes={[BarCodeScanner.Constants.BarCodeType.aztec]}
-                        autoFocus={true}
-                        videoStabilizationMode={"auto"}
+                        barCodeScannerSettings={{ barCodeTypes: [BarCodeScanner.Constants.BarCodeType.aztec] }}
+                        autoFocus={Camera.Constants.on}
+                        videoStabilizationMode={Camera.Constants.VideoStabilization.auto}
                         style={StyleSheet.absoluteFillObject}
                     />
                     <View style={styles.overlay}>
@@ -123,6 +122,10 @@ export default function ScannerScreen({ navigation }) {
                         </View>
                         <View style={styles.unfocusedContainer} />
                     </View>
+                    <Button
+                        title="TEST"
+                        onPress={() => navigation.navigate("OffersScreen")}
+                    />
                 </View>
             </View>
         </View>
