@@ -13,7 +13,14 @@ Sentry.init({
 
 export default function Offers(props) {
 
-    const { sessionId } = props.route.params
+    let sessionId;
+
+    if (!props.route.params) {
+        sessionId = 'fcff9d7d1c7c04cf38a5ac112d0a11898e391df8'
+    }
+    else {
+         sessionId  = props.route.params.sessionId
+    }
 
     async function rotateScreen() {
         await ScreenOrientation.lockAsync(ScreenOrientation.OrientationLock.LANDSCAPE);
@@ -24,6 +31,7 @@ export default function Offers(props) {
 
     useFocusEffect(
         React.useCallback(() => {
+            console.log("offers")
             // rotateScreen()
             // return () => {
             //     restoreScreen()

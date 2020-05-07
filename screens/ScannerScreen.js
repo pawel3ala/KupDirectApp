@@ -5,6 +5,7 @@ import {
     StyleSheet,
     StatusBar,
     Platform,
+    Button
 } from 'react-native'
 import { BarCodeScanner } from 'expo-barcode-scanner';
 import axios from 'axios'
@@ -55,7 +56,6 @@ export default function ScannerScreen({ navigation }) {
     }, []);
 
     const handleBarCodeScanned = ({ type, data }) => {
-        console.log("fff")
         setScanned(true);
         Sentry.captureMessage('Aztec code succesfully scanned', 'info');
 
@@ -72,10 +72,7 @@ export default function ScannerScreen({ navigation }) {
 
         axios.post("http://kup.direct/appconnect/service.php", formData, config)
             .then((resp) => getSessionId(resp.request._response))
-            .then((session) => {
-                navigation.navigate('OffersScreen', { sessionId: session })
-                setScanned(false)
-            })
+            .then((session) => navigation.navigate('OffersScreen', { sessionId: session }))
             .catch((error) => {
                 Sentry.captureMessage('Aztec code succesfully scanned but server responded with:' + error, 'fatal');
             })
@@ -111,7 +108,7 @@ export default function ScannerScreen({ navigation }) {
                     <StatusBar hidden={true} />
                     <Camera
                         onBarCodeScanned={scanned ? undefined : handleBarCodeScanned}
-                        barCodeScannerSettings={{barCodeTypes: [BarCodeScanner.Constants.BarCodeType.aztec]}}
+                        barCodeScannerSettings={{ barCodeTypes: [BarCodeScanner.Constants.BarCodeType.aztec] }}
                         autoFocus={Camera.Constants.on}
                         videoStabilizationMode={Camera.Constants.VideoStabilization.auto}
                         style={StyleSheet.absoluteFillObject}
@@ -125,6 +122,10 @@ export default function ScannerScreen({ navigation }) {
                         </View>
                         <View style={styles.unfocusedContainer} />
                     </View>
+                    <Button
+                        title="TEST"
+                        onPress={() => navigation.navigate("OffersScreen")}
+                    />
                 </View>
             </View>
         </View>
