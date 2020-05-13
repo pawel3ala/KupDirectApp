@@ -7,7 +7,7 @@
       "ios",
       "android"
     ],
-    "version": "1.0.0",
+    "version": "2.0.0",
     "orientation": "landscape",
     "icon": "./assets/icon.png",
     "splash": {
@@ -22,8 +22,9 @@
       "**/*"
     ],
     "ios": {
-      "supportsTablet": true,
-      "bundleIdentifier": "direct.kup.kupdirectapp"
+      "supportsTablet": false,
+      "bundleIdentifier": "direct.kup.kupdirectapp",
+      "buildNumber": "2"
     },
     "android": {
       "package": "com.kupdirectapp",
