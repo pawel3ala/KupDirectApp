@@ -10,18 +10,14 @@ import {
 import { BarCodeScanner } from 'expo-barcode-scanner';
 import axios from 'axios'
 import base64 from 'react-native-base64'
-import * as Sentry from 'sentry-expo';
+import Sentry from '../sentry';
 import { useFocusEffect } from '@react-navigation/native';
 import { ScreenOrientation } from 'expo';
 import { Dimensions } from 'react-native';
 import { WebView } from 'react-native-webview';
 import { Camera } from 'expo-camera';
 
-Sentry.init({
-    dsn: 'https://f8a02133e800455c86bee49793874e17@sentry.io/2581571',
-    enableInExpoDevelopment: true,
-    debug: true
-});
+
 
 export default function ScannerScreen({ navigation }) {
     const [hasPermission, setHasPermission] = useState(null);
