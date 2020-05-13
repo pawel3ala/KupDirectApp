@@ -1,6 +1,5 @@
 import React, { useState, useEffect } from 'react';
 import {
-    Text,
     View,
     StyleSheet,
     StatusBar,
@@ -16,6 +15,8 @@ import { Dimensions } from 'react-native';
 import { WebView } from 'react-native-webview';
 import { Camera } from 'expo-camera';
 import NoCameraPermissionScreen from './NoCameraPermissionScreen';
+import WebViewErrorScreen from './WebViewErrorScreen'
+import LoadingScreen from './LoadingScreen';
 
 export default function ScannerScreen({ navigation }) {
     const [hasPermission, setHasPermission] = useState(null);
@@ -99,8 +100,10 @@ export default function ScannerScreen({ navigation }) {
                 style={{ flex: 1 }}
                 onError={syntheticEvent => {
                     const { nativeEvent } = syntheticEvent;
-                    Sentry.captureMessage('WebView error: ' + nativeEvent, 'error');
+                    Sentry.captureMessage('WebView error on ScannerScreen: ' + nativeEvent, 'error');
                 }}
+                renderError={() => <WebViewErrorScreen />}
+                renderLoading={() => <LoadingScreen />}
                 source={{ uri: 'http://kup.direct/appconnect/service.php?page_scan' }}
             />
             <View style={{ width: Dimensions.get('window').height }}>
