@@ -16,6 +16,7 @@ import { ScreenOrientation } from 'expo';
 import { Dimensions } from 'react-native';
 import { WebView } from 'react-native-webview';
 import { Camera } from 'expo-camera';
+import NoCameraPermissionScreen from './NoCameraPermissionScreen';
 
 
 
@@ -74,11 +75,29 @@ export default function ScannerScreen({ navigation }) {
             })
     };
 
+    const returnRequestForCamera = () => {
+        return <View style={{backgroundColor: '"#f08032'}} />
+    }
+
+    const returnOverlayedComponent = () => {
+        return (
+            <View style={styles.overlay}>
+                <View style={styles.unfocusedContainer} />
+                <View style={styles.middleContainer}>
+                    <View style={styles.unfocusedContainer} />
+                    <View style={styles.focusedContainer} />
+                    <View style={styles.unfocusedContainer} />
+                </View>
+                <View style={styles.unfocusedContainer} />
+            </View>
+        )
+    }
+
     if (hasPermission === null) {
-        return <Text>Requesting for camera permission</Text>;
+        return returnRequestForCamera();
     }
     if (hasPermission === false) {
-        return <Text>No access to camera</Text>;
+        return <NoCameraPermissionScreen/>
     }
 
     return (
@@ -109,15 +128,7 @@ export default function ScannerScreen({ navigation }) {
                         videoStabilizationMode={Camera.Constants.VideoStabilization.auto}
                         style={StyleSheet.absoluteFillObject}
                     />
-                    <View style={styles.overlay}>
-                        <View style={styles.unfocusedContainer} />
-                        <View style={styles.middleContainer}>
-                            <View style={styles.unfocusedContainer} />
-                            <View style={styles.focusedContainer} />
-                            <View style={styles.unfocusedContainer} />
-                        </View>
-                        <View style={styles.unfocusedContainer} />
-                    </View>
+                    {returnOverlayedComponent()}
                     <Button
                         title="TEST"
                         onPress={() => navigation.navigate("OffersScreen")}
