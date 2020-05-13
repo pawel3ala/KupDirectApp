@@ -12,29 +12,18 @@ import axios from 'axios'
 import base64 from 'react-native-base64'
 import Sentry from '../sentry';
 import { useFocusEffect } from '@react-navigation/native';
-import { ScreenOrientation } from 'expo';
 import { Dimensions } from 'react-native';
 import { WebView } from 'react-native-webview';
 import { Camera } from 'expo-camera';
 import NoCameraPermissionScreen from './NoCameraPermissionScreen';
 
-
-
 export default function ScannerScreen({ navigation }) {
     const [hasPermission, setHasPermission] = useState(null);
     const [scanned, setScanned] = useState(false);
 
-    async function rotateScreen() {
-        await ScreenOrientation.lockAsync(ScreenOrientation.OrientationLock.LANDSCAPE);
-    }
-    async function restoreScreen() {
-        await ScreenOrientation.lockAsync(ScreenOrientation.OrientationLock.PORTRAIT);
-    }
-
     useFocusEffect(
         React.useCallback(() => {
             console.log("Scanner in focus")
-            // rotateScreen()
         })
     )
 
@@ -76,7 +65,7 @@ export default function ScannerScreen({ navigation }) {
     };
 
     const returnRequestForCamera = () => {
-        return <View style={{backgroundColor: '"#f08032'}} />
+        return <View style={{ backgroundColor: '"#f08032' }} />
     }
 
     const returnOverlayedComponent = () => {
@@ -97,7 +86,7 @@ export default function ScannerScreen({ navigation }) {
         return returnRequestForCamera();
     }
     if (hasPermission === false) {
-        return <NoCameraPermissionScreen/>
+        return <NoCameraPermissionScreen />
     }
 
     return (

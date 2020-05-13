@@ -1,7 +1,6 @@
 import React from 'react';
 import { StatusBar } from 'react-native'
 import { WebView } from 'react-native-webview';
-import { ScreenOrientation } from 'expo';
 import Sentry from '../sentry';
 import { useFocusEffect } from '@react-navigation/native';
 
@@ -14,13 +13,6 @@ export default function Offers(props) {
     }
     else {
          sessionId  = props.route.params.sessionId
-    }
-
-    async function rotateScreen() {
-        await ScreenOrientation.lockAsync(ScreenOrientation.OrientationLock.LANDSCAPE);
-    }
-    async function restoreScreen() {
-        await ScreenOrientation.lockAsync(ScreenOrientation.OrientationLock.PORTRAIT);
     }
 
     useFocusEffect(
