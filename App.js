@@ -1,8 +1,8 @@
 import React from 'react';
 import { NavigationContainer } from '@react-navigation/native';
 import { createStackNavigator } from '@react-navigation/stack';
-import ScannerScreen from "./screens/ScannerScreen"
-import OffersScreen from "./screens/OffersScreen"
+import ScannerScreen from './screens/ScannerScreen'
+import OffersScreen from './screens/OffersScreen'
 
 const Stack = createStackNavigator();
 

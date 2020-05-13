@@ -1,6 +1,5 @@
 import React, { useState, useEffect } from 'react';
 import {
-    Text,
     View,
     StyleSheet,
     StatusBar,
@@ -10,34 +9,22 @@ import {
 import { BarCodeScanner } from 'expo-barcode-scanner';
 import axios from 'axios'
 import base64 from 'react-native-base64'
-import * as Sentry from 'sentry-expo';
+import Sentry from '../sentry';
 import { useFocusEffect } from '@react-navigation/native';
-import { ScreenOrientation } from 'expo';
 import { Dimensions } from 'react-native';
 import { WebView } from 'react-native-webview';
 import { Camera } from 'expo-camera';
-
-Sentry.init({
-    dsn: 'https://f8a02133e800455c86bee49793874e17@sentry.io/2581571',
-    enableInExpoDevelopment: true,
-    debug: true
-});
+import NoCameraPermissionScreen from './NoCameraPermissionScreen';
+import WebViewErrorScreen from './WebViewErrorScreen'
+import LoadingScreen from './LoadingScreen';
 
 export default function ScannerScreen({ navigation }) {
     const [hasPermission, setHasPermission] = useState(null);
     const [scanned, setScanned] = useState(false);
 
-    async function rotateScreen() {
-        await ScreenOrientation.lockAsync(ScreenOrientation.OrientationLock.LANDSCAPE);
-    }
-    async function restoreScreen() {
-        await ScreenOrientation.lockAsync(ScreenOrientation.OrientationLock.PORTRAIT);
-    }
-
     useFocusEffect(
         React.useCallback(() => {
             console.log("Scanner in focus")
-            // rotateScreen()
         })
     )
 
@@ -78,11 +65,29 @@ export default function ScannerScreen({ navigation }) {
             })
     };
 
+    const returnRequestForCamera = () => {
+        return <View style={{ backgroundColor: '"#f08032' }} />
+    }
+
+    const returnOverlayedComponent = () => {
+        return (
+            <View style={styles.overlay}>
+                <View style={styles.unfocusedContainer} />
+                <View style={styles.middleContainer}>
+                    <View style={styles.unfocusedContainer} />
+                    <View style={styles.focusedContainer} />
+                    <View style={styles.unfocusedContainer} />
+                </View>
+                <View style={styles.unfocusedContainer} />
+            </View>
+        )
+    }
+
     if (hasPermission === null) {
-        return <Text>Requesting for camera permission</Text>;
+        return returnRequestForCamera();
     }
     if (hasPermission === false) {
-        return <Text>No access to camera</Text>;
+        return <NoCameraPermissionScreen />
     }
 
     return (
@@ -95,8 +100,10 @@ export default function ScannerScreen({ navigation }) {
                 style={{ flex: 1 }}
                 onError={syntheticEvent => {
                     const { nativeEvent } = syntheticEvent;
-                    Sentry.captureMessage('WebView error: ' + nativeEvent, 'error');
+                    Sentry.captureMessage('WebView error on ScannerScreen: ' + nativeEvent, 'error');
                 }}
+                renderError={() => <WebViewErrorScreen />}
+                renderLoading={() => <LoadingScreen />}
                 source={{ uri: 'http://kup.direct/appconnect/service.php?page_scan' }}
             />
             <View style={{ width: Dimensions.get('window').height }}>
@@ -113,15 +120,7 @@ export default function ScannerScreen({ navigation }) {
                         videoStabilizationMode={Camera.Constants.VideoStabilization.auto}
                         style={StyleSheet.absoluteFillObject}
                     />
-                    <View style={styles.overlay}>
-                        <View style={styles.unfocusedContainer} />
-                        <View style={styles.middleContainer}>
-                            <View style={styles.unfocusedContainer} />
-                            <View style={styles.focusedContainer} />
-                            <View style={styles.unfocusedContainer} />
-                        </View>
-                        <View style={styles.unfocusedContainer} />
-                    </View>
+                    {returnOverlayedComponent()}
                     <Button
                         title="TEST"
                         onPress={() => navigation.navigate("OffersScreen")}
