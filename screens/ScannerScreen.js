@@ -127,10 +127,6 @@ export default function ScannerScreen({ navigation }) {
                         onMountError={(error) => Sentry.captureMessage('Camera onMountError' + error, 'error')}
                     />
                     {returnOverlayedComponent()}
-                    <Button
-                        title={`${scanned}`}
-                        onPress={() => navigation.navigate('OffersScreen')}
-                    />
                 </View>
             </View>
         </View>
