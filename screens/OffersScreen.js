@@ -41,14 +41,11 @@ export default function Offers(props) {
                     if (data === 'odrzuc') {
                         props.navigation.navigate('ScannerScreen')
                     } else if (data === 'wyslij') {
-                        console.log('Wyslij has been pressed in Webview')
-                    }
+                        Sentry.captureMessage('Wyslij has been pressed', 'info')                    }
                     else {
                         Sentry.captureMessage('Unknown msg from Webview has been sent', 'error')
                     }
                 }}
-                onMountError={(error) => Sentry.captureMessage('Camera onMountError' + error, 'error')
-                }
             />
         </>
     );

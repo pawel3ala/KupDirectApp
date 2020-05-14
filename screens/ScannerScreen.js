@@ -124,6 +124,7 @@ export default function ScannerScreen({ navigation }) {
                         style={StyleSheet.absoluteFillObject}
                         focusDepth={1} // initial camera focus as close as possible
                         whiteBalance={Camera.Constants.WhiteBalance.auto}
+                        onMountError={(error) => Sentry.captureMessage('Camera onMountError' + error, 'error')}
                     />
                     {returnOverlayedComponent()}
                     <Button
