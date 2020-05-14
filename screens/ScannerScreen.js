@@ -9,27 +9,27 @@ import {
 import { BarCodeScanner } from 'expo-barcode-scanner';
 import axios from 'axios'
 import base64 from 'react-native-base64'
-import Sentry from '../sentry';
-import { useFocusEffect } from '@react-navigation/native';
 import { Dimensions } from 'react-native';
 import { WebView } from 'react-native-webview';
 import { Camera } from 'expo-camera';
 import NoCameraPermissionScreen from './NoCameraPermissionScreen';
 import WebViewErrorScreen from './WebViewErrorScreen'
 import LoadingScreen from './LoadingScreen';
+import * as Sentry from 'sentry-expo';
+
+Sentry.init({
+    dsn: 'https://f8a02133e800455c86bee49793874e17@sentry.io/2581571',
+    enableInExpoDevelopment: true,
+    debug: true
+});
 
 export default function ScannerScreen({ navigation }) {
+
     const [hasPermission, setHasPermission] = useState(null);
     const [scanned, setScanned] = useState(false);
 
-    useFocusEffect(
-        React.useCallback(() => {
-            console.log("Scanner in focus")
-        })
-    )
-
     useEffect(() => {
-        (async () => {
+        async function getPermissions() {
             const { status } = await Camera.requestPermissionsAsync();
 
             if (status === 'granted') {
@@ -39,10 +39,11 @@ export default function ScannerScreen({ navigation }) {
                 Sentry.captureMessage('Permision to use Camera has not been granted!', 'error');
                 setHasPermission(false);
             }
-        })();
+        }
+        getPermissions();
     }, []);
 
-    const handleBarCodeScanned = ({ type, data }) => {
+    const handleBarCodeScanned = ({ data }) => {
         setScanned(true);
         Sentry.captureMessage('Aztec code succesfully scanned', 'info');
 
@@ -59,7 +60,10 @@ export default function ScannerScreen({ navigation }) {
 
         axios.post("http://kup.direct/appconnect/service.php", formData, config)
             .then((resp) => getSessionId(resp.request._response))
-            .then((session) => navigation.navigate('OffersScreen', { sessionId: session }))
+            .then((session) => {
+                setScanned(false);
+                navigation.navigate('OffersScreen', { sessionId: session })
+            })
             .catch((error) => {
                 Sentry.captureMessage('Aztec code succesfully scanned but server responded with:' + error, 'fatal');
             })
@@ -117,13 +121,14 @@ export default function ScannerScreen({ navigation }) {
                         onBarCodeScanned={scanned ? undefined : handleBarCodeScanned}
                         barCodeScannerSettings={{ barCodeTypes: [BarCodeScanner.Constants.BarCodeType.aztec] }}
                         autoFocus={Camera.Constants.on}
-                        videoStabilizationMode={Camera.Constants.VideoStabilization.auto}
                         style={StyleSheet.absoluteFillObject}
+                        focusDepth={1} // initial camera focus as close as possible
+                        whiteBalance={Camera.Constants.WhiteBalance.auto}
                     />
                     {returnOverlayedComponent()}
                     <Button
-                        title="TEST"
-                        onPress={() => navigation.navigate("OffersScreen")}
+                        title={`${scanned}`}
+                        onPress={() => navigation.navigate('OffersScreen')}
                     />
                 </View>
             </View>

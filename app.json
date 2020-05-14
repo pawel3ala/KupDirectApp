@@ -24,11 +24,15 @@
     "ios": {
       "supportsTablet": false,
       "bundleIdentifier": "direct.kup.kupdirectapp",
-      "buildNumber": "2"
+      "buildNumber": "2",
+      "infoPlist": {
+        "NSCameraUsageDescription": "Potrzebny jest dostep do Twojego aparatu aby móc zeskanowac dowód rejestracyjny"
+      }
     },
     "android": {
       "package": "com.kupdirectapp",
-      "versionCode": 2
+      "versionCode": 2,
+      "permissions": ["CAMERA"]
     },
     "hooks": {
       "postPublish": [
