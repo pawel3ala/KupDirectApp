@@ -1,7 +1,7 @@
 {
   "expo": {
-    "name": "KupDirectApp",
-    "slug": "KupDirectApp",
+    "name": "KupDirect",
+    "slug": "KupDirect",
     "privacy": "public",
     "platforms": [
       "ios",
@@ -11,8 +11,6 @@
     "orientation": "landscape",
     "icon": "./assets/icon.png",
     "splash": {
-      "image": "./assets/icon.png",
-      "resizeMode": "contain",
       "backgroundColor": "#f08032"
     },
     "updates": {
@@ -23,14 +21,14 @@
     ],
     "ios": {
       "supportsTablet": false,
-      "bundleIdentifier": "direct.kup.kupdirectapp",
+      "bundleIdentifier": "pl.kupdirect.app",
       "buildNumber": "2",
       "infoPlist": {
         "NSCameraUsageDescription": "Potrzebny jest dostep do Twojego aparatu aby móc zeskanowac dowód rejestracyjny"
       }
     },
     "android": {
-      "package": "com.kupdirectapp",
+      "package": "pl.kupdirect.app",
       "versionCode": 2,
       "permissions": ["CAMERA"]
     },
