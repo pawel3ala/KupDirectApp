@@ -87,12 +87,8 @@ export default function ScannerScreen({ navigation }) {
         )
     }
 
-    if (hasPermission === null) {
-        return returnRequestForCamera();
-    }
-    if (hasPermission === false) {
-        return <NoCameraPermissionScreen />
-    }
+    if (hasPermission === null) return returnRequestForCamera();
+    if (hasPermission === false) return <NoCameraPermissionScreen />
 
     return (
         <View style={{
@@ -110,12 +106,7 @@ export default function ScannerScreen({ navigation }) {
                 renderLoading={() => <LoadingScreen />}
                 source={{ uri: 'http://kup.direct/appconnect/service.php?page_scan' }}
             />
-            <View style={{ width: Dimensions.get('window').height }}>
-                <View
-                    style={{
-                        flex: 1,
-                        flexDirection: 'column',
-                    }}>
+            <View style={{ width: Dimensions.get('window').height, flex: 1 }}>
                     <StatusBar hidden={true} />
                     <Camera
                         onBarCodeScanned={scanned ? undefined : handleBarCodeScanned}
@@ -127,7 +118,6 @@ export default function ScannerScreen({ navigation }) {
                         onMountError={(error) => Sentry.captureMessage('Camera onMountError' + error, 'error')}
                     />
                     {returnOverlayedComponent()}
-                </View>
             </View>
         </View>
     );
@@ -147,15 +137,15 @@ const styles = StyleSheet.create({
     },
     unfocusedContainer: {
         flex: 1,
-        backgroundColor: 'rgba(0,0,0,0.7)',
+        backgroundColor: 'rgba(0,0,0,0.4)',
     },
     middleContainer: {
         flexDirection: 'row',
-        flex: 2,
+        flex: 3,
+        height: '70%'
     },
     focusedContainer: {
-        width: '60%',
-        height: '70%'
+        flex: 4,
     },
 })
 
