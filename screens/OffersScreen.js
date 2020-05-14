@@ -1,10 +1,15 @@
 import React from 'react';
 import { StatusBar } from 'react-native'
 import { WebView } from 'react-native-webview';
-import Sentry from '../sentry';
-import { useFocusEffect } from '@react-navigation/native';
 import WebViewErrorScreen from './WebViewErrorScreen'
 import LoadingScreen from './LoadingScreen';
+import * as Sentry from 'sentry-expo';
+
+Sentry.init({
+    dsn: 'https://f8a02133e800455c86bee49793874e17@sentry.io/2581571',
+    enableInExpoDevelopment: true,
+    debug: true
+  });
 
 export default function Offers(props) {
 
@@ -16,16 +21,6 @@ export default function Offers(props) {
     else {
         sessionId = props.route.params.sessionId
     }
-
-    useFocusEffect(
-        React.useCallback(() => {
-            console.log("offers")
-            // rotateScreen()
-            // return () => {
-            //     restoreScreen()
-            // }
-        })
-    )
 
     return (
         <>
@@ -48,7 +43,12 @@ export default function Offers(props) {
                     } else if (data === 'wyslij') {
                         console.log('Wyslij has been pressed in Webview')
                     }
+                    else {
+                        Sentry.captureMessage('Unknown msg from Webview has been sent', 'error')
+                    }
                 }}
+                onMountError={(error) => Sentry.captureMessage('Camera onMountError' + error, 'error')
+                }
             />
         </>
     );
