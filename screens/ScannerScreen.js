@@ -48,17 +48,11 @@ export default function ScannerScreen({ navigation }) {
         Sentry.captureMessage('Aztec code succesfully scanned', 'info');
 
         let formData = new FormData()
-        formData.append("action", "datatransfer")
-        formData.append("terminal", "99999999YYYYYYYY")
-        formData.append("barcode", base64.encode(data))
+        formData.append('action', 'datatransfer')
+        formData.append('terminal', '99999999YYYYYYYY')
+        formData.append('barcode', base64.encode(data))
 
-        let config = {
-            headers: {
-                "HTTP_USER_AGENT": Platform.OS === 'ios' ? "KUPDIRECT_APP_IPHONE" : "KUPDIRECT_APP_ANDROID",
-            }
-        }
-
-        axios.post("http://kup.direct/appconnect/service.php", formData, config)
+        axios.post('http://kup.direct/appconnect/service.php', formData)
             .then((resp) => getSessionId(resp.request._response))
             .then((session) => {
                 setScanned(false);
@@ -154,7 +148,7 @@ const getSessionId = (string) => {
     Server returns a string, not a json object!
   
     Extracts session id from the folowing string:
-    '{"status":"ok","message":"Dane zosta\u0142y przes\u0142ane na serwer i poprawnie zinterpretowane.","url":"http:\/\/kup.direct\/appconnect\/service.php?session=cefd60ec5e49f83ab83d3fc2b615b863b0238886"}'
+    '{"status":"ok","message":"Dane zosta\u0142y przes\u0142ane na serwer i poprawnie zinterpretowane.","url":"http:__?service.php?session=cefd60ec5e49f83ab83d3fc2b615b863b0238886"}'
   
     returns 'cefd60ec5e49f83ab83d3fc2b615b863b0238886'
     */
