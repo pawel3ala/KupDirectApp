@@ -4,9 +4,10 @@ import { WebView } from 'react-native-webview';
 import WebViewErrorScreen from './WebViewErrorScreen'
 import LoadingScreen from './LoadingScreen';
 import * as Sentry from 'sentry-expo';
+import { SENTRY_DNS, ENDPOINT } from 'react-native-dotenv'
 
 Sentry.init({
-    dsn: 'https://f8a02133e800455c86bee49793874e17@sentry.io/2581571',
+    dsn: SENTRY_DNS,
     enableInExpoDevelopment: true,
     debug: true
   });
@@ -35,7 +36,7 @@ export default function Offers(props) {
                 }}
                 renderError={() => <WebViewErrorScreen />}
                 renderLoading={() => <LoadingScreen />}
-                source={{ uri: `http://kup.direct/appconnect/service.php?session=${sessionId}` }}
+                source={{ uri: `${ENDPOINT}session=${sessionId}` }}
                 onMessage={event => {
                     const { data } = event.nativeEvent;
                     if (data === 'odrzuc') {

@@ -16,9 +16,10 @@ import NoCameraPermissionScreen from './NoCameraPermissionScreen';
 import WebViewErrorScreen from './WebViewErrorScreen'
 import LoadingScreen from './LoadingScreen';
 import * as Sentry from 'sentry-expo';
+import { SENTRY_DNS, ENDPOINT } from 'react-native-dotenv'
 
 Sentry.init({
-    dsn: 'https://f8a02133e800455c86bee49793874e17@sentry.io/2581571',
+    dsn: SENTRY_DNS,
     enableInExpoDevelopment: true,
     debug: true
 });
@@ -52,7 +53,7 @@ export default function ScannerScreen({ navigation }) {
         formData.append('terminal', '99999999YYYYYYYY')
         formData.append('barcode', base64.encode(data))
 
-        axios.post('http://kup.direct/appconnect/service.php', formData)
+        axios.post(ENDPOINT, formData)
             .then((resp) => getSessionId(resp.request._response))
             .then((session) => {
                 setScanned(false);
@@ -98,20 +99,20 @@ export default function ScannerScreen({ navigation }) {
                 }}
                 renderError={() => <WebViewErrorScreen />}
                 renderLoading={() => <LoadingScreen />}
-                source={{ uri: 'http://kup.direct/appconnect/service.php?page_scan' }}
+                source={{ uri: `${ENDPOINT}page_scan` }}
             />
             <View style={{ width: Dimensions.get('window').height, flex: 1 }}>
-                    <StatusBar hidden={true} />
-                    <Camera
-                        onBarCodeScanned={scanned ? undefined : handleBarCodeScanned}
-                        barCodeScannerSettings={{ barCodeTypes: [BarCodeScanner.Constants.BarCodeType.aztec] }}
-                        autoFocus={Camera.Constants.on}
-                        style={StyleSheet.absoluteFillObject}
-                        focusDepth={1} // initial camera focus as close as possible
-                        whiteBalance={Camera.Constants.WhiteBalance.auto}
-                        onMountError={(error) => Sentry.captureMessage('Camera onMountError' + error, 'error')}
-                    />
-                    {returnOverlayedComponent()}
+                <StatusBar hidden={true} />
+                <Camera
+                    onBarCodeScanned={scanned ? undefined : handleBarCodeScanned}
+                    barCodeScannerSettings={{ barCodeTypes: [BarCodeScanner.Constants.BarCodeType.aztec] }}
+                    autoFocus={Camera.Constants.on}
+                    style={StyleSheet.absoluteFillObject}
+                    focusDepth={1} // initial camera focus as close as possible
+                    whiteBalance={Camera.Constants.WhiteBalance.auto}
+                    onMountError={(error) => Sentry.captureMessage('Camera onMountError' + error, 'error')}
+                />
+                {returnOverlayedComponent()}
             </View>
         </View>
     );
