@@ -2,9 +2,7 @@ import React, { useState, useEffect } from 'react';
 import {
     View,
     StyleSheet,
-    StatusBar,
-    Platform,
-    Button
+    StatusBar
 } from 'react-native'
 import { BarCodeScanner } from 'expo-barcode-scanner';
 import axios from 'axios'
@@ -23,6 +21,8 @@ Sentry.init({
     enableInExpoDevelopment: true,
     debug: true
 });
+
+const SCREEN_WIDTH = Dimensions.get('window').width
 
 export default function ScannerScreen({ navigation }) {
 
@@ -101,7 +101,7 @@ export default function ScannerScreen({ navigation }) {
                 renderLoading={() => <LoadingScreen />}
                 source={{ uri: `${ENDPOINT}page_scan` }}
             />
-            <View style={{ width: Dimensions.get('window').height, flex: 1 }}>
+            <View style={{ width: SCREEN_WIDTH}}>
                 <StatusBar hidden={true} />
                 <Camera
                     onBarCodeScanned={scanned ? undefined : handleBarCodeScanned}
