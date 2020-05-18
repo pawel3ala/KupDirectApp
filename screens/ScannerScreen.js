@@ -1,8 +1,9 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import {
     View,
     StyleSheet,
-    StatusBar
+    StatusBar,
+    Vibration
 } from 'react-native'
 import { BarCodeScanner } from 'expo-barcode-scanner';
 import axios from 'axios'
@@ -14,11 +15,12 @@ import NoCameraPermissionScreen from './NoCameraPermissionScreen';
 import WebViewErrorScreen from './WebViewErrorScreen'
 import LoadingScreen from './LoadingScreen';
 import * as Sentry from 'sentry-expo';
-import { SENTRY_DNS, ENDPOINT } from 'react-native-dotenv'
+import { __SENTRY_DNS__, __ENDPOINT__ } from 'react-native-dotenv'
 import BarcodeMask from 'react-native-barcode-mask';
+import { useFocusEffect } from '@react-navigation/native'
 
 Sentry.init({
-    dsn: SENTRY_DNS,
+    dsn: __SENTRY_DNS__,
     enableInExpoDevelopment: true,
     debug: true
 });
@@ -29,6 +31,12 @@ export default function ScannerScreen({ navigation }) {
 
     const [hasPermission, setHasPermission] = useState(null);
     const [scanned, setScanned] = useState(false);
+
+    useFocusEffect(
+        useCallback(() => {
+            setScanned(false);
+        }, [])
+      );
 
     useEffect(() => {
         async function getPermissions() {
@@ -54,14 +62,14 @@ export default function ScannerScreen({ navigation }) {
         formData.append('terminal', '99999999YYYYYYYY')
         formData.append('barcode', base64.encode(data))
 
-        axios.post(ENDPOINT, formData)
+        axios.post(__ENDPOINT__, formData)
             .then((resp) => getSessionId(resp.request._response))
             .then((session) => {
-                setScanned(false);
+                Vibration.vibrate()
                 navigation.navigate('OffersScreen', { sessionId: session })
             })
             .catch((error) => {
-                Sentry.captureMessage('Aztec code succesfully scanned but server responded with:' + error, 'fatal');
+                Sentry.captureMessage('Aztec code succesfully scanned but server responded with:' + JSON.stringify(error), 'fatal');
             })
     };
 
@@ -82,11 +90,11 @@ export default function ScannerScreen({ navigation }) {
                 style={{ flex: 1 }}
                 onError={syntheticEvent => {
                     const { nativeEvent } = syntheticEvent;
-                    Sentry.captureMessage('WebView error on ScannerScreen: ' + nativeEvent, 'error');
+                    Sentry.captureMessage('WebView error on ScannerScreen: ' + JSON.stringify(nativeEvent), 'error');
                 }}
                 renderError={() => <WebViewErrorScreen />}
                 renderLoading={() => <LoadingScreen />}
-                source={{ uri: `${ENDPOINT}page_scan` }}
+                source={{ uri: `${__ENDPOINT__}page_scan` }}
             />
             <View style={{ width: SCREEN_WIDTH }}>
                 <StatusBar hidden={true} />
@@ -97,7 +105,7 @@ export default function ScannerScreen({ navigation }) {
                     style={StyleSheet.absoluteFillObject}
                     focusDepth={1} // initial camera focus as close as possible
                     whiteBalance={Camera.Constants.WhiteBalance.auto}
-                    onMountError={(error) => Sentry.captureMessage('Camera onMountError' + error, 'error')}
+                    onMountError={(error) => Sentry.captureMessage('Camera onMountError' + JSON.stringify(error), 'error')}
                 >
                     <BarcodeMask
                         width={SCREEN_WIDTH / 1.5}
