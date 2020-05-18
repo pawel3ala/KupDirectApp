@@ -2,9 +2,7 @@ import React, { useState, useEffect } from 'react';
 import {
     View,
     StyleSheet,
-    StatusBar,
-    Platform,
-    Button
+    StatusBar
 } from 'react-native'
 import { BarCodeScanner } from 'expo-barcode-scanner';
 import axios from 'axios'
@@ -16,12 +14,15 @@ import NoCameraPermissionScreen from './NoCameraPermissionScreen';
 import WebViewErrorScreen from './WebViewErrorScreen'
 import LoadingScreen from './LoadingScreen';
 import * as Sentry from 'sentry-expo';
+import { SENTRY_DNS, ENDPOINT } from 'react-native-dotenv'
 
 Sentry.init({
-    dsn: 'https://f8a02133e800455c86bee49793874e17@sentry.io/2581571',
+    dsn: SENTRY_DNS,
     enableInExpoDevelopment: true,
     debug: true
 });
+
+const SCREEN_WIDTH = Dimensions.get('window').width
 
 export default function ScannerScreen({ navigation }) {
 
@@ -48,17 +49,11 @@ export default function ScannerScreen({ navigation }) {
         Sentry.captureMessage('Aztec code succesfully scanned', 'info');
 
         let formData = new FormData()
-        formData.append("action", "datatransfer")
-        formData.append("terminal", "99999999YYYYYYYY")
-        formData.append("barcode", base64.encode(data))
+        formData.append('action', 'datatransfer')
+        formData.append('terminal', '99999999YYYYYYYY')
+        formData.append('barcode', base64.encode(data))
 
-        let config = {
-            headers: {
-                "HTTP_USER_AGENT": Platform.OS === 'ios' ? "KUPDIRECT_APP_IPHONE" : "KUPDIRECT_APP_ANDROID",
-            }
-        }
-
-        axios.post("http://kup.direct/appconnect/service.php", formData, config)
+        axios.post(ENDPOINT, formData)
             .then((resp) => getSessionId(resp.request._response))
             .then((session) => {
                 setScanned(false);
@@ -104,20 +99,20 @@ export default function ScannerScreen({ navigation }) {
                 }}
                 renderError={() => <WebViewErrorScreen />}
                 renderLoading={() => <LoadingScreen />}
-                source={{ uri: 'http://kup.direct/appconnect/service.php?page_scan' }}
+                source={{ uri: `${ENDPOINT}page_scan` }}
             />
-            <View style={{ width: Dimensions.get('window').height, flex: 1 }}>
-                    <StatusBar hidden={true} />
-                    <Camera
-                        onBarCodeScanned={scanned ? undefined : handleBarCodeScanned}
-                        barCodeScannerSettings={{ barCodeTypes: [BarCodeScanner.Constants.BarCodeType.aztec] }}
-                        autoFocus={Camera.Constants.on}
-                        style={StyleSheet.absoluteFillObject}
-                        focusDepth={1} // initial camera focus as close as possible
-                        whiteBalance={Camera.Constants.WhiteBalance.auto}
-                        onMountError={(error) => Sentry.captureMessage('Camera onMountError' + error, 'error')}
-                    />
-                    {returnOverlayedComponent()}
+            <View style={{ width: SCREEN_WIDTH}}>
+                <StatusBar hidden={true} />
+                <Camera
+                    onBarCodeScanned={scanned ? undefined : handleBarCodeScanned}
+                    barCodeScannerSettings={{ barCodeTypes: [BarCodeScanner.Constants.BarCodeType.aztec] }}
+                    autoFocus={Camera.Constants.on}
+                    style={StyleSheet.absoluteFillObject}
+                    focusDepth={1} // initial camera focus as close as possible
+                    whiteBalance={Camera.Constants.WhiteBalance.auto}
+                    onMountError={(error) => Sentry.captureMessage('Camera onMountError' + error, 'error')}
+                />
+                {returnOverlayedComponent()}
             </View>
         </View>
     );
@@ -154,7 +149,7 @@ const getSessionId = (string) => {
     Server returns a string, not a json object!
   
     Extracts session id from the folowing string:
-    '{"status":"ok","message":"Dane zosta\u0142y przes\u0142ane na serwer i poprawnie zinterpretowane.","url":"http:\/\/kup.direct\/appconnect\/service.php?session=cefd60ec5e49f83ab83d3fc2b615b863b0238886"}'
+    '{"status":"ok","message":"Dane zosta\u0142y przes\u0142ane na serwer i poprawnie zinterpretowane.","url":"http:__?service.php?session=cefd60ec5e49f83ab83d3fc2b615b863b0238886"}'
   
     returns 'cefd60ec5e49f83ab83d3fc2b615b863b0238886'
     */
