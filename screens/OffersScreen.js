@@ -4,10 +4,10 @@ import { WebView } from 'react-native-webview';
 import WebViewErrorScreen from './WebViewErrorScreen'
 import LoadingScreen from './LoadingScreen';
 import * as Sentry from 'sentry-expo';
-import { SENTRY_DNS, ENDPOINT } from 'react-native-dotenv'
+import { __SENTRY_DNS__, __ENDPOINT__ } from 'react-native-dotenv'
 
 Sentry.init({
-    dsn: SENTRY_DNS,
+    dsn: __SENTRY_DNS__,
     enableInExpoDevelopment: true,
     debug: true
 });
@@ -24,11 +24,11 @@ export default function Offers(props) {
                 style={{ flex: 1 }}
                 onError={syntheticEvent => {
                     const { nativeEvent } = syntheticEvent;
-                    Sentry.captureMessage('WebView error on OffersScreen: ' + nativeEvent, 'error');
+                    Sentry.captureMessage('WebView error on OffersScreen: ' + JSON.stringify(nativeEvent), 'error');
                 }}
                 renderError={() => <WebViewErrorScreen />}
                 renderLoading={() => <LoadingScreen />}
-                source={{ uri: `${ENDPOINT}session=${sessionId}` }}
+                source={{ uri: `${__ENDPOINT__}session=${sessionId}` }}
                 onMessage={event => {
                     const { data } = event.nativeEvent;
                     if (data === 'odrzuc') {
