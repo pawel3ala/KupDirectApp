@@ -15,6 +15,7 @@ import WebViewErrorScreen from './WebViewErrorScreen'
 import LoadingScreen from './LoadingScreen';
 import * as Sentry from 'sentry-expo';
 import { SENTRY_DNS, ENDPOINT } from 'react-native-dotenv'
+import BarcodeMask from 'react-native-barcode-mask';
 
 Sentry.init({
     dsn: SENTRY_DNS,
@@ -68,20 +69,6 @@ export default function ScannerScreen({ navigation }) {
         return <View style={{ backgroundColor: '"#f08032' }} />
     }
 
-    const returnOverlayedComponent = () => {
-        return (
-            <View style={styles.overlay}>
-                <View style={styles.unfocusedContainer} />
-                <View style={styles.middleContainer}>
-                    <View style={styles.unfocusedContainer} />
-                    <View style={styles.focusedContainer} />
-                    <View style={styles.unfocusedContainer} />
-                </View>
-                <View style={styles.unfocusedContainer} />
-            </View>
-        )
-    }
-
     if (hasPermission === null) return returnRequestForCamera();
     if (hasPermission === false) return <NoCameraPermissionScreen />
 
@@ -101,7 +88,7 @@ export default function ScannerScreen({ navigation }) {
                 renderLoading={() => <LoadingScreen />}
                 source={{ uri: `${ENDPOINT}page_scan` }}
             />
-            <View style={{ width: SCREEN_WIDTH}}>
+            <View style={{ width: SCREEN_WIDTH }}>
                 <StatusBar hidden={true} />
                 <Camera
                     onBarCodeScanned={scanned ? undefined : handleBarCodeScanned}
@@ -111,38 +98,18 @@ export default function ScannerScreen({ navigation }) {
                     focusDepth={1} // initial camera focus as close as possible
                     whiteBalance={Camera.Constants.WhiteBalance.auto}
                     onMountError={(error) => Sentry.captureMessage('Camera onMountError' + error, 'error')}
-                />
-                {returnOverlayedComponent()}
+                >
+                    <BarcodeMask
+                        width={SCREEN_WIDTH / 1.5}
+                        height={SCREEN_WIDTH / 1.5}
+                        edgeColor="white"
+                        showAnimatedLine={false}
+                    />
+                </Camera>
             </View>
         </View>
     );
 }
-
-const styles = StyleSheet.create({
-    container: {
-        flex: 1,
-        position: 'relative',
-    },
-    overlay: {
-        position: 'absolute',
-        top: 0,
-        left: 0,
-        right: 0,
-        bottom: 0,
-    },
-    unfocusedContainer: {
-        flex: 1,
-        backgroundColor: 'rgba(0,0,0,0.4)',
-    },
-    middleContainer: {
-        flexDirection: 'row',
-        flex: 3,
-        height: '70%'
-    },
-    focusedContainer: {
-        flex: 4,
-    },
-})
 
 const getSessionId = (string) => {
     /*
