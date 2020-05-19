@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { View, Text } from 'react-native'
+import { View, Text, Alert } from 'react-native'
 import NetInfo from '@react-native-community/netinfo';
 import * as Sentry from 'sentry-expo';
 import { __SENTRY_DNS__ } from 'react-native-dotenv'
@@ -12,8 +12,10 @@ Sentry.init({
 
 export default ({ navigation }) => {
 
-    const [isCheckingNetComplete, setIsCheckingNetComplete] = useState(false);
-    const [isNetAvailable, setIsNetAvailable] = useState(false);
+    const [state, setState] = useState({
+        isCheckingNetComplete: false,
+        isNetAvailable: false
+    })
 
     useEffect(() => {
         async function checkInternetConnection() {
@@ -21,32 +23,44 @@ export default ({ navigation }) => {
                 let { isConnected } = await NetInfo.fetch()
                 if (isConnected) {
                     navigation.navigate('ScannerScreen')
-                    setIsNetAvailable(true)
+                    setState({
+                        isCheckingNetComplete: true,
+                        isNetAvailable: true
+                    })
                 } else {
-                    setIsNetAvailable(false)
+                    setState({
+                        isCheckingNetComplete: true,
+                        isNetAvailable: false
+                    })
                 }
             } catch (error) {
                 Sentry.captureMessage('Checking Internet connection failed: ' + JSON.stringify(error), 'error');
-            } finally {
-                setIsCheckingNetComplete(true)
             }
         }
         checkInternetConnection();
     }, []);
 
-    if (!isCheckingNetComplete || isNetAvailable) {
+    const popUpNoInternetAlert = () => {
+        Alert.alert(
+            'Niestety wykryto brak dostepu do Internetu',
+            'Zamknij aplikacje, sprawdz ustawienia telefonu i sprobuj ponownie...',
+            [{ text: 'OK' }],
+        );
+    }
+
+    if (state.isNetAvailable || !state.isCheckingNetComplete) {
         return <View style={{ flex: 1, backgroundColor: '#f08032' }} />;
     } else {
         return (
-            <>
-                <View style={{
-                     flex: 1,
-                      backgroundColor: '#f08032',
-                      justifyContent: 'center',
-                      alignItems: 'center' }}>
-                    <Text >Brak dostepu do internetu</Text>
-                </View>
-            </>
+            <View style={{
+                flex: 1,
+                backgroundColor: '#f08032',
+                justifyContent: 'center',
+                alignItems: 'center'
+            }}>
+                <Text style={{ color: 'white', fontSize: 20 }}>Brak dostepu do Internetu...</Text>
+                {popUpNoInternetAlert()}
+            </View>
         )
     }
 }
