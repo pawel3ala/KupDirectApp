@@ -3,8 +3,13 @@ import { View, Text } from 'react-native'
 
 const NoCameraPermissionScreen = () => {
     return (
-        <View>
-            <Text>No Camera permissions has been granted :/</Text>
+        <View style={{
+            flex: 1,
+            backgroundColor: '#f08032',
+            justifyContent: 'center',
+            alignItems: 'center'
+        }}>
+            <Text style={{ color: 'white', fontSize: 20 }}>Brak dostepu do kemery ...</Text>
         </View>
     )
 }
