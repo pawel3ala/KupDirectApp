@@ -2,7 +2,7 @@
   "expo": {
     "name": "KupDirect",
     "slug": "KupDirect",
-    "backgroundColor": "f08032",
+    "backgroundColor": "#f08032",
     "privacy": "public",
     "platforms": [
       "ios",
