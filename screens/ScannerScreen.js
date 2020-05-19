@@ -96,7 +96,7 @@ export default function ScannerScreen({ navigation }) {
                 renderLoading={() => <LoadingScreen />}
                 source={{ uri: `${__ENDPOINT__}page_scan` }}
             />
-            <View style={{ width: SCREEN_WIDTH }}>
+            <View style={{ width: SCREEN_WIDTH, flex: 1 }}>
                 <StatusBar hidden={true} />
                 <Camera
                     onBarCodeScanned={scanned ? undefined : handleBarCodeScanned}
