@@ -108,8 +108,8 @@ export default function ScannerScreen({ navigation }) {
                     onMountError={(error) => Sentry.captureMessage('Camera onMountError' + JSON.stringify(error), 'error')}
                 >
                     <BarcodeMask
-                        width={SCREEN_WIDTH / 1.5}
-                        height={SCREEN_WIDTH / 1.5}
+                        width={250}
+                        height={250}
                         edgeColor="white"
                         showAnimatedLine={false}
                     />
