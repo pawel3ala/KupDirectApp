@@ -112,6 +112,7 @@ export default function ScannerScreen({ navigation }) {
                         height={250}
                         edgeColor="white"
                         showAnimatedLine={false}
+                        outerMaskOpacity={0.2}
                     />
                 </Camera>
             </View>
