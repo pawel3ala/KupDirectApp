@@ -23,7 +23,7 @@
     "ios": {
       "supportsTablet": false,
       "bundleIdentifier": "pl.kupdirect.appstore",
-      "buildNumber": "4",
+      "buildNumber": "6",
       "infoPlist": {
         "NSCameraUsageDescription": "Potrzebny jest dostep do Twojego aparatu aby móc zeskanowac dowód rejestracyjny"
       }
